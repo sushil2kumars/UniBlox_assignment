@@ -18,7 +18,6 @@ def read_coupons(db: Session = Depends(get_db), current_user: User = Depends(get
     """
     Retrieve all coupons. Only accessible to admin users.
     """
-    print("vvvvvvvv",current_user.is_admin)
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Only admin can access coupons")
 
