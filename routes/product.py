@@ -1,10 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
 
 from models import Product, User
 from app import get_db, get_current_user
 
+
 router = APIRouter()
+
+
+class CreateProcut(BaseModel):
+    name: str
+    price: float
+
 
 @router.get("/")
 def get_product_list(db: Session = Depends(get_db)):
@@ -13,7 +21,7 @@ def get_product_list(db: Session = Depends(get_db)):
 
 
 @router.post("/")
-def add_product(product_data: dict, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def add_product(product_data: CreateProcut, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     new_product = Product(**product_data)
     if current_user.is_admin:
         db.add(new_product)
