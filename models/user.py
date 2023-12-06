@@ -25,3 +25,6 @@ class User(Base):
             'exp': datetime.utcnow() + timedelta(seconds=expiration)
         }
         return jwt.encode(payload, 'your_secret_key', algorithm='HS256')
+    
+    def is_admin(self):
+        True if self.role=='admin' else False
