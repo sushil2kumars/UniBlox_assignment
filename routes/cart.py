@@ -1,15 +1,24 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from models import Cart, CartProduct, User
+from models import Cart, CartProduct, User,Product
 from app import get_db, get_current_user
 
 router = APIRouter()
 
+#@router.get("/")
+#def get_cart_products(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+#    products = db.query(CartProduct).join(Cart).filter(Cart.user_id == str(current_user.id)).all()
+#    return [{"details":db.query(Product).filter(Product.id == product.product_id).first(),"order":product} for product in products]
+
 @router.get("/")
-def get_cart_products(db: Session = Depends(get_db)):
-    products = db.query(CartProduct).all()
-    return products
+def get_cart_products(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    # Get cart products from the database
+    products = db.query(CartProduct).join(Cart).filter(Cart.user_id == str(current_user.id)).all()
+    
+    # Get product details and return the data
+    return [{"details":db.query(Product).filter(Product.id == product.product_id).first(),"order":product} for product in products]
+
 
 @router.post("/")
 def add_to_cart(product_id: str, quantity: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
