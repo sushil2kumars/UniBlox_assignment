@@ -1,0 +1,1 @@
+SECRET_KEY = "sjfnd,maskmhsbcdvkr bjfb rskb fdbd"
