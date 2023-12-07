@@ -5,6 +5,9 @@ from app import get_db, get_current_user
 from sqlalchemy_utils import UUIDType
 from pydantic import BaseModel
 from uuid import UUID
+from sqlalchemy import func
+from sqlalchemy.sql import exists
+
 router = APIRouter()
 
 class CreateCoupon(BaseModel):
@@ -76,6 +79,7 @@ def delete_coupon(coupon_id: UUID, db: Session = Depends(get_db), current_user: 
 
 # Get purchase statistics
 @router.get("/purchase_statistics")
+@router.get("/purchase_statistics")
 def purchase_statistics(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """
     Retrieve purchase statistics. Only accessible to admin users.
@@ -83,8 +87,10 @@ def purchase_statistics(db: Session = Depends(get_db), current_user: User = Depe
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Only admin can access purchase statistics")
 
-    total_items_purchased = db.query(OrderProduct).count()
-    total_purchase_amount = db.query(Order.total_amount).scalar() or 0.0
+    discount_codes_ = db.query(OrderProduct).all()
+    print(discount_codes_,"dd")
+    total_items_purchased = db.query(func.coalesce(func.sum(OrderProduct.quantity), 0)).scalar()
+    total_purchase_amount = db.query(func.coalesce(func.sum(Order.total_amount), 0.0)).scalar()
     discount_codes = db.query(Coupon.code).all()
     total_discount_amount = sum(order.total_amount * 0.1 for order in db.query(Order).filter(Order.discount_code.isnot(None)).all())
 

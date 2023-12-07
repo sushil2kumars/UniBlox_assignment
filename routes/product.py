@@ -9,7 +9,7 @@ from app import get_db, get_current_user
 router = APIRouter()
 
 
-class CreateProcut(BaseModel):
+class CreateProcart(BaseModel):
     name: str
     price: float
 
@@ -21,8 +21,8 @@ def get_product_list(db: Session = Depends(get_db)):
 
 
 @router.post("/")
-def add_product(product_data: CreateProcut, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    new_product = Product(**product_data)
+def add_product(product_data: CreateProcart, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    new_product = Product(**dict(product_data))
     if current_user.is_admin:
         db.add(new_product)
         db.commit()
